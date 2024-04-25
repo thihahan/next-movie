@@ -1,18 +1,12 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "@/components/ui/menubar"
-import { Button } from "@/components/ui/button"
+import { Menubar } from "@/components/ui/menubar";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { redirect } from "next/navigation";
+import GenreButton from "@/components/GenreButton";
 const inter = Inter({ subsets: ["latin"] });
-
 
 export const metadata = {
   title: "Create Next App",
@@ -21,45 +15,63 @@ export const metadata = {
 
 const fetchGenres = async () => {
   const res = await fetch(`${process.env.API_URL}/3/genre/movie/list`, {
-    headers : {
-      authorization : `Bearer ${process.env.API_ACCESS_TOKEN}`
-    }
-  })
-  const data = await res.json()
-  return data
-}
+    headers: {
+      authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`,
+    },
+  });
+  const data = await res.json();
+  return data;
+};
 
 export default async function RootLayout({ children }) {
-  const data = await fetchGenres()
+  const data = await fetchGenres();
+  async function search(FormData) {
+    "use server";
+    const q = FormData.get("q");
+    redirect(`/search?q=${q}`);
+  }
   return (
     <html lang="en">
-			<body className={inter.className}>
-				<div className="container mt-4">
-					<Menubar>
-						<h1 className="mx-4">Next Movie</h1>
-					</Menubar>
-
-					<main className="mt-4">
-            <div className="flex">
-            <div className="w-[250px] pr-4 border-r">
-            <Link href={'/'}>
-            <Button variant="ghost" className="w-full justify-start">All Movies</Button>
-            </Link>
-            {data.genres.map(genre => {
-              return <Link key={genre.id} href={`/genres/${genre.name}/${genre.id}`}>
-                <Button 
-                    variant="ghost"
-                    className="w-full justify-start">
-                    {genre.name}
-                </Button>
-                </Link>;
-                })}
+      <body className={inter.className}>
+        <div className="container mt-4">
+          <div className="flex gap-2 flex-wrap">
+            <div className="w-full">
+              <Menubar>
+                <h1 className="mx-4">Next Movie</h1>
+              </Menubar>
             </div>
-                <div className="pt-4"> {children}</div>
+            <form action={search} className="flex flex-grow-0 gap-3">
+              <Input type="text" name="q" />
+              <Button>Search</Button>
+            </form>
+          </div>
+          <main className="mt-4">
+            <div className="flex">
+              <div className="w-[250px] sticky top-0 pr-6 border-r">
+                <Link href={"/"}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    All Movies
+                  </Button>
+                </Link>
+                {data.genres.map((genre) => {
+                  return (
+                    <Link
+                      key={genre.id}
+                      href={`/genres/${genre.name}/${genre.id}`}
+                    >
+                      <GenreButton genre={genre} />
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="px-4 w-full h-full overflow-scroll">
+                {" "}
+                {children}
+              </div>
             </div>
           </main>
-				</div>
-			</body>
-		</html>
+        </div>
+      </body>
+    </html>
   );
 }

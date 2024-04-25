@@ -1,22 +1,13 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import Movies from "@/components/Movies"
+import Trending from "@/components/Trending";
+import { fetchTrending } from "@/lib/fetchData";
 
-const fetchTrending = async () => {
-  const res = await fetch(`${process.env.API_URL}/3/trending/movie/day`, {
-    headers : {
-      authorization : `Bearer ${process.env.API_ACCESS_TOKEN}`
-    }
-  })
-  const data = await res.json()
-  return data 
-}
-
-export default async function Home(){
-  const trending = await fetchTrending()
-  const movies = trending?.results
-  return <>
+export default async function Home({}) {
+  const res = await fetchTrending(1);
+  const movies = res.results;
+  return (
+    <>
       <h3 className="text-lg m-3">Trending</h3>
-      <Movies movies={movies}/>
+      <Trending initialMovies={movies} />
     </>
+  );
 }
