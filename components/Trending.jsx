@@ -32,9 +32,7 @@ export default function Trending({ initialMovies }) {
         hasMore={hasMore}
         loader={<h4>Loading...</h4>}
         endMessage={<p>No more movies</p>}
-      >
-        <Movies movies={movies} />
-      </InfiniteScroll>
+      ></InfiniteScroll>
     </>
   );
 }
